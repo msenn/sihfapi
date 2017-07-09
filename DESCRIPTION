@@ -12,3 +12,4 @@ Description: Retrieve results tables and game details from Swiss
 License: file LICENSE
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 6.0.1

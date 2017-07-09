@@ -41,7 +41,7 @@ sihf_api <- function(path, query) {
 #' Print Object of Class 'sihf_api'
 #'
 #' @param x Return object of \code{sifh_api()}
-#' @inheritParams print
+#' @inheritParams base::print
 #'
 #' @return x (invisibly)
 print.sihf_api <- function(x, ...) {
