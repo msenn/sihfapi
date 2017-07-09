@@ -24,7 +24,10 @@ sihf_api <- function(path, query) {
     stop("API did not return json", call. = FALSE)
   }
 
-  parsed <- jsonlite::fromJSON(content(resp, "text"), simplifyVector = FALSE)
+  parsed <- jsonlite::fromJSON(
+    content(resp, "text", encoding = "UTF-8"),
+    simplifyVector = FALSE
+  )
 
   structure(
     list (
