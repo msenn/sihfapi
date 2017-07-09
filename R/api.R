@@ -38,6 +38,62 @@ sihf_api <- function(path, query) {
 }
 
 
+#' Print Object of Class 'sihf_api'
+#'
+#' @param x Return object of \code{sifh_api()}
+#' @inheritParams print
+#'
+#' @return x (invisibly)
+print.sihf_api <- function(x, ...) {
+  cat("<SIHF ", x$query$alias, ">\n\n", sep = "")
+
+  if (x$content$alias == "gameDetail") {
+    with(
+      x$content,
+      cat(
+        # Season / league
+        paste(
+          season,
+          league$name
+        ),
+
+        # Phase / date
+        paste(
+          phase$name,
+          sprintf("(%s)", as.Date(as.POSIXct(startDateTime)))
+        ),
+
+        # Score
+        paste(
+          details$homeTeam$acronym,
+          result$homeTeam,
+          ":",
+          details$awayTeam$acronym,
+          result$awayTeam
+        ),
+        sep = "\n"
+      )
+    )
+
+    } else if (x$content$alias == "results") {
+      cat(
+        paste("Number of games:", length(x$content$data)),
+        "Filter:",
+        paste(
+          sprintf(
+            "  %s = %s",
+            strsplit(x$query$filterBy, ",")[[1]],
+            strsplit(x$query$filterQuery, "/")[[1]]
+          ),
+          collapse = "\n"
+        ),
+        sep = "\n"
+      )
+    }
+
+  invisible(x)
+}
+
 #' Get Results Table
 #'
 #' Retrieve a summary table from SIHF API. This functionality is particularly
