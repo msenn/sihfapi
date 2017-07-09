@@ -1,0 +1,14 @@
+Package: sihfapi
+Type: Package
+Title: Access SIHF Statistics API
+Version: 0.1.0
+Authors@R: 
+  person(
+    "Markus", "Senn", email = "markus.senn@yandex.com", role = c("aut", "cre")
+    )
+Description: Retrieve results tables and game details from Swiss
+    Ice Hockey Federation's statistics API using only simple and
+    user friendly R functions.
+License: file LICENSE
+Encoding: UTF-8
+LazyData: true
