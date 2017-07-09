@@ -18,7 +18,23 @@
 #' }
 sihf_api <- function(path, query) {
   url <- modify_url("https://dvdata.sihf.ch", path = path)
-  GET(url, query = query)
+
+  resp <- GET(url, query = query)
+  if(http_type(resp) != "application/json") {
+    stop("API did not return json", call. = FALSE)
+  }
+
+  parsed <- jsonlite::fromJSON(content(resp, "text"), simplifyVector = FALSE)
+
+  structure(
+    list (
+      content = parsed,
+      path = path,
+      query = query,
+      response = resp
+    ),
+    class = "sihf_api"
+  )
 }
 
 
