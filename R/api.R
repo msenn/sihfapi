@@ -4,7 +4,6 @@
 #' @param query Search query; see examples and \code{?httr::modify_url}
 #'
 #' @return httr response object
-#' @export
 #' @import httr
 #'
 #' @examples
