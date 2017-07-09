@@ -43,6 +43,8 @@ sihf_api <- function(path, query) {
 #' @param x Return object of \code{sifh_api()}
 #' @inheritParams base::print
 #'
+#' @export
+#'
 #' @return x (invisibly)
 print.sihf_api <- function(x, ...) {
   cat("<SIHF ", x$query$alias, ">\n\n", sep = "")
