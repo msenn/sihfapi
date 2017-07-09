@@ -94,7 +94,7 @@ print.sihf_api <- function(x, ...) {
   invisible(x)
 }
 
-#' Get Results Table
+#' Fetch Results Table
 #'
 #' Retrieve a summary table from SIHF API. This functionality is particularly
 #' useful to compile a list of game IDs that can be user in
@@ -115,7 +115,7 @@ print.sihf_api <- function(x, ...) {
 #'
 #' @examples
 #' results <- get_results(c(Season = "2017", Date = "09.10.2016"))
-get_results <- function(filter = NULL) {
+fetch_results <- function(filter = NULL) {
 
   if (is.null(filter) || !"Season" %in% names(filter)) {
     today <- Sys.Date()
@@ -135,7 +135,7 @@ get_results <- function(filter = NULL) {
 }
 
 
-#' Get Game Detail
+#' Fetch Game Detail
 #'
 #' @param gameId A valid SIHF game ID. Use \code{get_results()} to rerieve
 #'   filtered lists of game summaries that include game IDs.
@@ -145,7 +145,7 @@ get_results <- function(filter = NULL) {
 #'
 #' @examples
 #' gameDetail <- get_gameDetail(20171105078373)
-get_gameDetail <- function(gameId) {
+fetch_gameDetail <- function(gameId) {
   query = list(
     alias        = "gameDetail",
     searchQuery = gameId
