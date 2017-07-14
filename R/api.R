@@ -105,6 +105,12 @@ print.sihf_api <- function(x, ...) {
 #' useful to compile a list of game IDs that can be user in
 #' \code{get_gameDetail}.
 #'
+#' The date filter of the SIHF API functions in a non-strict way: if no games
+#' matching all other filters took place on the specified date (or in the
+#' interval), the API will return the last games before that date / interval
+#' matching the filters. That is, if we query the API for a date where no games
+#' took place, it will still return games.
+#'
 #' @param filter Named vector of fields and values to filter query on. SIHF
 #'   requires filter. Details on supported filtering options are unknown. Known
 #'   options include \itemize{ \item{Season (e.g. "2017"); this filter appears
