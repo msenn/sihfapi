@@ -17,5 +17,5 @@ httr response object
 Fetch Game Detail
 }
 \examples{
-gameDetail <- get_gameDetail(20171105078373)
+gameDetail <- fetch_gameDetail(20171105078373)
 }

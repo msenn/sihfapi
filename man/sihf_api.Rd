@@ -19,7 +19,7 @@ Generi Call to SIHF API
 }
 \examples{
 # Query game list
-/dontrun{
+\dontrun{
 resp <- sihf_api("/statistic/api/cms/table", query = list(
   alias       = "results",
   searchQuery = "1,8,10,11//1,8,9,20,47,48,50,90,81",

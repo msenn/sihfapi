@@ -33,5 +33,5 @@ matching the filters. That is, if we query the API for a date where no games
 took place, it will still return games.
 }
 \examples{
-results <- get_results(c(Season = "2017", Date = "09.10.2016"))
+results <- fetch_results(c(Season = "2017", Date = "09.10.2016"))
 }

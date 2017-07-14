@@ -8,7 +8,7 @@
 #'
 #' @examples
 #' # Query game list
-#' /dontrun{
+#' \dontrun{
 #' resp <- sihf_api("/statistic/api/cms/table", query = list(
 #'   alias       = "results",
 #'   searchQuery = "1,8,10,11//1,8,9,20,47,48,50,90,81",
@@ -125,7 +125,7 @@ print.sihf_api <- function(x, ...) {
 #' @export
 #'
 #' @examples
-#' results <- get_results(c(Season = "2017", Date = "09.10.2016"))
+#' results <- fetch_results(c(Season = "2017", Date = "09.10.2016"))
 fetch_results <- function(filter = NULL) {
 
   if (is.null(filter) || !"Season" %in% names(filter)) {
@@ -155,7 +155,7 @@ fetch_results <- function(filter = NULL) {
 #' @export
 #'
 #' @examples
-#' gameDetail <- get_gameDetail(20171105078373)
+#' gameDetail <- fetch_gameDetail(20171105078373)
 fetch_gameDetail <- function(gameId) {
   query = list(
     alias        = "gameDetail",
