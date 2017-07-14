@@ -1,0 +1,169 @@
+---
+title: "SIHF Game Detail Data"
+author: "Markus Senn"
+date: "7/9/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(sihfapi)
+library(tidyverse)
+library(lubridate)
+```
+
+## The SIHF API
+
+The website of the Swiss Ice Hocke Federation (SIHF) exposes an API for use by its "Gamecenter". The present package makes use of this API to download results and game details.
+
+There does not seem to be any public documentation on the API and how to use it. Thus, the package has been developed through backwards engineering. This fact is still much noticable at some points and contributions are highly welcome.
+
+
+## Fetching data
+### Results
+
+"Results" are short tables that summarise game outcomes. They are particularly important as we can retrieve long lists of results using handy filters such season, league and date.
+
+```{r results}
+results <- fetch_results(c(Season = 2017)) %>% 
+  print()
+```
+
+Filters are not fully understood. The 'Date' filter has a somewhat particular behvior (see `?fetch_results()`).
+
+```{r resultsDateFilter}
+cat('Filter: Sempteber 20, 2016\n')
+fetch_results(c(Season = 2017, Date = "20.9.2016"))
+
+cat('\nFilter: October 2016\n')
+fetch_results(c(Season = 2017, Date = "1.10.2016-31.10.2016"))
+```
+
+
+Internally, the results object is a list of `c("content", "path", "query", "response")`.  
+
+- content: parsed content returned by the API call
+- path: path to the API endpoint querried ("/statistic/api/cms/table")
+- query: API query elements; notably the filter criteria
+- response: the raw http response of the API call (httr object)
+
+
+#### Content
+
+The content is provided by SIHF. It is a list object with multiple nested lists. At the top level, the list contains 14 elements:
+
+```{r resultsContentTop}
+str(results$content, max.level = 1)
+```
+
+Most of these elements are unintersting as they only contain rendering instructions for the SIHF website. By far the most interesting element `$data` which contains the actual data content of the response. `$header` provides meta data for each item of the data. This meta data is the name, description, and alias of each item as well as some item-specific rendering instructions.
+
+```{r resultsContentHeader}
+header <- tibble(
+  name = map_chr(results$content$header, 'name'),
+  description = map_chr(results$content$header, 'description'),
+  alias = map_chr(results$content$header, 'alias') 
+) %>% 
+  print()
+```
+
+`$data` is a list of variable length, where each element of the list represents an individual game. Each of these games consists of 11 elements that correspond to the header items discussed above:
+
+```{r resultsContentData}
+d <- results$content$data %>% 
+  map(~set_names(.x, header$alias))
+  
+d[[1]]
+```
+
+```{r resutlsContantDataParsed1}
+d <- d %>% 
+  map(~enframe(.x) %>% 
+        spread(name, value)
+  ) %>% 
+  bind_rows() %>% 
+  mutate_at(vars(date, day, decision, status, time), unlist) %>% 
+
+  # Parse date_time
+  mutate(date_time = dmy_hm(paste(date, time))) %>% 
+  select(-date, -day, -time) %>% 
+  print()
+```
+
+This simple parsing contains nested lists and may be useful for further processing, as it contains a maximum amount of data with minimum structure. Further parsing may be more useful for human readers:
+
+```{r resutlsContantDataParsed2}
+collapsePeriodScore <- function(periodScore) {
+  map2(periodScore['homeTeam'], periodScore['awayTeam'], ~paste(.x, .y, sep = ":")) %>% 
+    unlist(use.names = FALSE) %>% 
+    paste(collapse = "|")
+}
+
+results.games <- d %>% 
+  mutate(
+    gameId = map_chr(details, 'gameId'),
+    awayTeamAcronym = map_chr(awayTeam, 'acronym'),
+    homeTeamAcronym = map_chr(homeTeam, 'acronym'),
+    finalScore = map_chr(score, ~paste(.x['homeTeam'], .x['awayTeam'], sep = ':')),
+    periodScore = map_chr(scorePerPeriod, collapsePeriodScore)
+  ) %>% 
+  select(
+    date_time, gameId,
+    ends_with('TeamAcronym'),
+    ends_with('Score', ignore.case = FALSE)
+  ) %>% 
+  print()
+```
+
+Note that the list of games we retrieved is neither resticted to NLA games nor a full list of all games available in the API. Rather, it appears to be a combination of NLA, CHL and national team games.
+
+We can also use the results table to compile a simple teams table that lists teamId, acronym and name.
+
+```{r resultsContentTeamsList}
+results.teams <- d %>% 
+  select(ends_with('Team')) %>% 
+  gather("key", "value") %>% 
+  select(value) %>% 
+  mutate(value = map(
+    value, ~enframe(.x) %>% 
+      spread(name, value)
+  )) %>% 
+  unnest() %>% 
+  mutate_all(unlist) %>% 
+  select(id, acronym, name) %>% 
+  distinct() %>% 
+  arrange(id) %>% 
+  print()
+```
+
+One of the important use case of the results table is to retrieve gameIds which we require to retrieve game details.
+
+
+### Game detail
+
+Once we know the ID of a game we are interested in, we can easily fetch the detail of this game:
+
+```{r gameDetail}
+gameDetail <- 
+  results.games %>% 
+  slice(1) %$%
+  gameId %>% 
+  fetch_gameDetail() %>% 
+  print()
+```
+
+Internally, the results object is a list of `c("content", "path", "query", "response")`. These items are largely analogous to the ones in 'results'. Obviously, content is different.
+
+### Fetching details for multiple games
+
+Using functions of the `apply` family or from the `purrr` package, fechting details on multiple games is simple.
+
+```{r multiGameDetails}
+gameDetails <- 
+  results.games %>% 
+  slice(1:4) %$% 
+  gameId %>% 
+  map(fetch_gameDetail) %>% 
+  map(print) %>% 
+  map('content')
+```
