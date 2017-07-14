@@ -76,7 +76,7 @@ d <- results$content$data %>%
 d[[1]]
 ```
 
-```{r resutlsContantDataParsed1}
+```{r resultsContentDataParsed1}
 d <- d %>% 
   map(~enframe(.x) %>% 
         spread(name, value)
@@ -92,11 +92,14 @@ d <- d %>%
 
 This simple parsing contains nested lists and may be useful for further processing, as it contains a maximum amount of data with minimum structure. Further parsing may be more useful for human readers:
 
-```{r resutlsContantDataParsed2}
-collapsePeriodScore <- function(periodScore) {
-  map2(periodScore['homeTeam'], periodScore['awayTeam'], ~paste(.x, .y, sep = ":")) %>% 
+```{r resultsContentDataParsed2}
+collapseScore <- function(score) {
+  map2(
+    score['homeTeam'], score['awayTeam'],
+    ~paste(.x, .y, sep = ":")
+  ) %>% 
     unlist(use.names = FALSE) %>% 
-    paste(collapse = "|")
+    paste(collapse = " | ")
 }
 
 results.games <- d %>% 
@@ -104,8 +107,8 @@ results.games <- d %>%
     gameId = map_chr(details, 'gameId'),
     awayTeamAcronym = map_chr(awayTeam, 'acronym'),
     homeTeamAcronym = map_chr(homeTeam, 'acronym'),
-    finalScore = map_chr(score, ~paste(.x['homeTeam'], .x['awayTeam'], sep = ':')),
-    periodScore = map_chr(scorePerPeriod, collapsePeriodScore)
+    finalScore = map_chr(score, collapseScore),
+    periodScore = map_chr(scorePerPeriod, collapseScore)
   ) %>% 
   select(
     date_time, gameId,
