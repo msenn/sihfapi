@@ -281,9 +281,7 @@ The remaining items of game detail content are more complex. Flattening them to 
 
 #### Summary
 
-The `summary` object contains event data on each period (fouls, goals, goalkeepers) and the shootout. We parse these data items into separate tables to take accound of the fact that we have vastly different information on the differen events. 
-
-Todo: The `goalkeepers` object is not yet parsed as it was empty for the games we have looked at so far.
+The `summary` object contains event data on each period (fouls, goals, goalkeepers) and the shootout. We parse these data items into separate tables to take accound of the fact that we have vastly different information on the different events.
 
 ```{r gd_summary}
 # Parse one summary$periods object
@@ -304,7 +302,8 @@ parsePeriods <- function(periods) {
         map(~map_df(., bind_cols)),
       
       goalkeepers = value %>% 
-        map("goalkeepers")
+        map("goalkeepers") %>% 
+        map(~map_df(., bind_cols))
     )
  
   ## Prepare flat return
@@ -315,7 +314,11 @@ parsePeriods <- function(periods) {
     
     goals = tmp %>% 
     select(period, goals) %>% 
-    unnest()
+    unnest(),
+    
+    goalkeepers = tmp %>% 
+      select(period, goalkeepers) %>% 
+      unnest()
   ) 
 }
 
@@ -338,27 +341,64 @@ tmp <-
     goals = periods %>% 
       map("goals"),
     
+    goalkeepers = periods %>% 
+      map("goalkeepers"),
+    
     shootout = data %>% 
       map("shootout") %>% 
       map("shoots") %>% 
       map(~map_df(., bind_cols))
   ) %>% 
   select(-data, -periods)
+```
 
+The fouls table provides IDs of the offending player and team, information on the penalty minutes awareded, the fould id and name (e.g., id = 9 representing 'Crosscheck'), and the start and effective end time of the penalty.
+
+```{r gd_summaryFouls}
 gameDetail.fouls <- tmp %>% 
   select(gameId, fouls) %>% 
   unnest() %>% 
+  mutate_at(vars(ends_with("time")), ms) %>% 
   print()
+```
 
+The start and end time variables are parsed using lubridates `ms()`. This function returns an S4 objct of class period. Differences can be obtained through simple subtraction. However, the differences are returned in somewhat unfriendly format (e.g. "2M -37S" instead of 83). These differences can easily be converted to seconds using `as.numeric()`:
+
+```{r gd_summaryFouls_effectiveDuration}
+with(gameDetail.fouls, endTime - startTime) %>% 
+  as.numeric()
+```
+
+The `sortOrder` field (also contained in the two other periods tables) is not yet understood. The field may contain rendering instructions for the SIHF website or some information that I have not yet decoded.
+
+
+The goals table provides the id of the scoring and assisting players. In addition, it records all players on the ice as either plus or minuses.
+
+```{r gd_summaryGoals}
 gameDetail.goals <- tmp %>% 
   select(gameId, goals) %>% 
   unnest() %>% 
+  mutate_at(vars(ends_with("time")), ms) %>% 
   print()
+```
 
+The `goalkeepers` object is not fully understood yet. It appears to record goalkeeper substitution and pull events. It may be beneficial to parse the `text` for IN / OUT. This necessicty would be somewhat surprising given that text fields of the SIHF API typically only render information contained in other fields.
+
+```{r gd_summaryGoalkeepers}
+gameDetail.goalkeepers <- tmp %>% 
+select(gameId, goalkeepers) %>% 
+  unnest() %>% 
+  mutate_at(vars(ends_with("time")), ms) %>% 
+  print()
+```
+
+
+```{r gd_summaryShootout}
 gameDetail.shootout <- tmp %>% 
   select(gameId, shootout) %>% 
   unnest() %>% 
   print()
 
-rm(tmp)
+rm(list = c("tmp", "parsePeriods"))
+```
 ```
