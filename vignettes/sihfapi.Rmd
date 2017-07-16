@@ -28,8 +28,7 @@ The website of the Swiss Ice Hocke Federation (SIHF) exposes an API for use by i
 There does not seem to be any public documentation on the API and how to use it. Thus, the package has been developed through backwards engineering. This fact is still much noticable at some points and contributions are highly welcome.
 
 
-## Fetching data
-### Results
+## Fetch results
 
 "Results" are short tables that summarise game outcomes. They are particularly important as we can retrieve long lists of results using handy filters such season, league and date.
 
@@ -57,7 +56,7 @@ Internally, the results object is a list of `c("content", "path", "query", "resp
 - response: the raw http response of the API call (httr object)
 
 
-#### Content
+## Results content
 
 The content is provided by SIHF. It is a list object with multiple nested lists. At the top level, the list contains 14 elements:
 
@@ -151,7 +150,7 @@ results.teams <- d %>%
 One of the important use case of the results table is to retrieve gameIds which we require to retrieve game details.
 
 
-### Game detail
+## Fetch game detail
 
 Once we know the ID of a game we are interested in, we can easily fetch the detail of this game:
 
@@ -166,7 +165,7 @@ gameDetail <-
 
 Internally, the results object is a list of `c("content", "path", "query", "response")`. These items are largely analogous to the ones in 'results'. Obviously, content is different.
 
-### Fetching details for multiple games
+### Multiple games
 
 Using functions of the `apply` family or from the `purrr` package, fechting details on multiple games is simple.
 
