@@ -8,8 +8,17 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(sihfapi)
+library(httr)
 library(tidyverse)
 library(lubridate)
+library(stringr)
+
+# Converst first character of string to upper case (leaving all others as is)
+firstToUpper <- function(x) {
+  first <- toupper(substr(x, 1, 1))
+  rest <- substr(x, 2, nchar(x))
+  paste0(first, rest)
+}
 ```
 
 ## The SIHF API
