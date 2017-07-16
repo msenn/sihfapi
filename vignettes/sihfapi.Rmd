@@ -2,7 +2,7 @@
 title: "SIHF Game Detail Data"
 author: "Markus Senn"
 date: "7/9/2017"
-output: pdf_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
