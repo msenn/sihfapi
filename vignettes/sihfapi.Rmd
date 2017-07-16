@@ -217,7 +217,7 @@ gameDetail.game$single <-
   print()
 ```
 
-`idField` items consist of an integer ID and a matching name. For example `league = list(id = 81, name = "CHL")`:
+`idName` items consist of an integer ID and a matching name. For example `league = list(id = 81, name = "CHL")`:
 
 ```{r gd_gameIdField}
 gameDetail.game$idName <- 
