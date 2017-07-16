@@ -152,10 +152,10 @@ One of the important use case of the results table is to retrieve gameIds which 
 
 Once we know the ID of a game we are interested in, we can easily fetch the detail of this game:
 
-```{r gameDetail}
+```{r gd_fetch}
 gameDetail <- 
   results.games %>% 
-  slice(1) %$%
+  slice(30) %$%
   gameId %>% 
   fetch_gameDetail() %>% 
   print()
@@ -167,12 +167,12 @@ Internally, the results object is a list of `c("content", "path", "query", "resp
 
 Using functions of the `apply` family or from the `purrr` package, fechting details on multiple games is simple.
 
-```{r multiGameDetails}
-gameDetails <- 
+```{r gd_multiFetch}
+gameDetail <- 
   results.games %>% 
-  slice(1:4) %$% 
+  slice(30:32) %$% 
   gameId %>% 
   map(fetch_gameDetail) %>% 
-  map(print) %>% 
-  map('content')
+  map(print)
+```
 ```
