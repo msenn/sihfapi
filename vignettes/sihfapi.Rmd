@@ -118,7 +118,8 @@ results.games <- d %>%
   select(
     date_time, gameId,
     ends_with('TeamAcronym'),
-    ends_with('Score', ignore.case = FALSE)
+    ends_with('Score', ignore.case = FALSE),
+    decision
   ) %>% 
   print()
 ```
