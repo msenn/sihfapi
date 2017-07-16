@@ -275,4 +275,90 @@ gameDetail.game <-
   full_join(gameDetail.game$status, by = c(gameId = "statusGameId")) %>% 
   print()
 ```
+
+### Complex
+The remaining items of game detail content are more complex. Flattening them to a row-per-game table seems inappropriate. Doing so would substantially harm readability and handling of the data. We parse them into separate tables.
+
+#### Summary
+
+The `summary` object contains event data on each period (fouls, goals, goalkeepers) and the shootout. We parse these data items into separate tables to take accound of the fact that we have vastly different information on the differen events. 
+
+Todo: The `goalkeepers` object is not yet parsed as it was empty for the games we have looked at so far.
+
+```{r gd_summary}
+# Parse one summary$periods object
+parsePeriods <- function(periods) {
+  ## Parse list
+  tmp <- periods %>% 
+    enframe() %>% 
+    transmute(
+      period = value %>% 
+        map_chr("name"),
+      
+      fouls = value %>% 
+        map("fouls") %>% 
+        map(~map_df(., bind_cols)),
+      
+      goals = value %>% 
+        map("goals") %>% 
+        map(~map_df(., bind_cols)),
+      
+      goalkeepers = value %>% 
+        map("goalkeepers")
+    )
+ 
+  ## Prepare flat return
+  list(
+    fouls = tmp %>% 
+    select(period, fouls) %>% 
+    unnest(),
+    
+    goals = tmp %>% 
+    select(period, goals) %>% 
+    unnest()
+  ) 
+}
+
+tmp <- 
+  gameDetail %>%
+  map('content') %>% 
+  set_names(gameDetail.game$gameId) %>% 
+  enframe("gameId", "data") %>% 
+  mutate(
+    data = data %>%
+      map("summary"),
+    
+    periods = data %>% 
+      map("periods") %>% 
+      map(parsePeriods),
+    
+    fouls = periods %>% 
+      map("fouls"),
+    
+    goals = periods %>% 
+      map("goals"),
+    
+    shootout = data %>% 
+      map("shootout") %>% 
+      map("shoots") %>% 
+      map(~map_df(., bind_cols))
+  ) %>% 
+  select(-data, -periods)
+
+gameDetail.fouls <- tmp %>% 
+  select(gameId, fouls) %>% 
+  unnest() %>% 
+  print()
+
+gameDetail.goals <- tmp %>% 
+  select(gameId, goals) %>% 
+  unnest() %>% 
+  print()
+
+gameDetail.shootout <- tmp %>% 
+  select(gameId, shootout) %>% 
+  unnest() %>% 
+  print()
+
+rm(tmp)
 ```
