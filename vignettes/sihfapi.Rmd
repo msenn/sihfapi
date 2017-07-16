@@ -98,6 +98,7 @@ d <- d %>%
 This simple parsing contains nested lists and may be useful for further processing, as it contains a maximum amount of data with minimum structure. Further parsing may be more useful for human readers:
 
 ```{r resultsContentDataParsed2}
+# Collapse complex multi-team, multi-period scores into " | " separated string
 collapseScore <- function(score) {
   map2(
     score['homeTeam'], score['awayTeam'],
