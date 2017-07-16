@@ -175,4 +175,104 @@ gameDetail <-
   map(fetch_gameDetail) %>% 
   map(print)
 ```
+
+## Game detail content
+
+The content of each game detail is a fairly large and complex list of lists:
+
+```{r gd_content}
+str(gameDetail[[1]]$content, max.level = 1)
+```
+
+Upon closer inspection, we find a number of items in this list that are relatively easy to transform into a table where each row represents a game and is identified by `gameId`. We divided these items into three classes that need separate parsing:
+
+### Game
+
+```{r gd_gameNames}
+nm.game <- list(
+  single = c("gameId", "season", "updateDateTime", "startDateTime", "endDateTime", "videoId", "info", "alias"),
+  idName = c("league", "region", "group", "tournament", "qualification", "phase"),
+  status = "status"
+) %>% 
+  print()
+```
+
+`single` is a group of items that consists only of a single value:
+
+```{r gd_gameSingle}
+gameDetail.game <- list()
+
+gameDetail.game$single <- 
+  gameDetail %>% 
+  map('content') %>% 
+  map(`[`, nm.game$single) %>% 
+  map(enframe) %>% 
+  map(~spread(., name, value)) %>% 
+  bind_rows() %>% 
+  mutate_all(unlist) %>% 
+  mutate_at(
+    vars(ends_with("DateTime")),
+    ymd_hms
+  ) %>% 
+  print()
+```
+
+`idField` items consist of an integer ID and a matching name. For example `league = list(id = 81, name = "CHL")`:
+
+```{r gd_gameIdField}
+gameDetail.game$idName <- 
+  gameDetail %>% 
+  map('content') %>% 
+  set_names(gameDetail.game$single$gameId) %>% 
+  enframe("gameId", "data") %>% 
+  mutate(
+    data = data %>% 
+      map(`[`, nm.game$idName) %>% 
+      map(enframe)
+  ) %>% 
+  unnest() %>% 
+  rename(var = name) %>% 
+  mutate(
+    value = value %>% 
+      map(bind_cols)
+  ) %>% 
+  unnest() %>% 
+  gather("key", "value", -gameId, -var) %>%
+  mutate(key = paste0(var, firstToUpper(key))) %>% 
+  select(-var) %>%
+  spread(key, value) %>% 
+  print()
+```
+
+That last item we will flatten to a table with one row per game is `status`. This item is somewhat more complex, consisting of 7 fields. We prefix these seven fields as "statusX".
+
+```{r gd_gameStatus}
+gameDetail.game$status <- 
+  gameDetail %>% 
+  map('content') %>% 
+  set_names(gameDetail.game$single$gameId) %>% 
+  enframe("gameId", "data") %>% 
+  mutate(
+    data = data %>% 
+      map(`[`, "status") %>% 
+      map(bind_cols)
+  ) %>% 
+  unnest() %>% 
+    mutate_at(
+    vars(ends_with("DateTime")),
+    ymd_hms
+  ) %>% 
+  set_names(str_c("status", names(.) %>% firstToUpper())) %>% 
+  print()
+```
+
+We join the three game items to a single data frame.
+
+```{r gd_gameJoin}
+gameDetail.game <- 
+  gameDetail.game$single %>% 
+  full_join(gameDetail.game$idName, by = "gameId") %>% 
+  full_join(gameDetail.game$status, by = c(gameId = "statusGameId")) %>% 
+  print()
+```
 ```
