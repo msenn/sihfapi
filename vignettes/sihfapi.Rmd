@@ -40,10 +40,7 @@ results <- fetch_results(c(Season = 2017)) %>%
 Filters are not fully understood. The 'Date' filter has a somewhat particular behvior (see `?fetch_results()`).
 
 ```{r resultsDateFilter}
-cat('Filter: Sempteber 20, 2016\n')
 fetch_results(c(Season = 2017, Date = "20.9.2016"))
-
-cat('\nFilter: October 2016\n')
 fetch_results(c(Season = 2017, Date = "1.10.2016-31.10.2016"))
 ```
 
