@@ -13,12 +13,6 @@ library(tidyverse)
 library(lubridate)
 library(stringr)
 
-# Converst first character of string to upper case (leaving all others as is)
-firstToUpper <- function(x) {
-  first <- toupper(substr(x, 1, 1))
-  rest <- substr(x, 2, nchar(x))
-  paste0(first, rest)
-}
 ```
 
 ## The SIHF API
@@ -239,7 +233,7 @@ gameDetail.game$idName <-
   ) %>% 
   unnest() %>% 
   gather("key", "value", -gameId, -var) %>%
-  mutate(key = paste0(var, firstToUpper(key))) %>% 
+  mutate(key = paste0(var, ut_firstToUpper(key))) %>% 
   select(-var) %>%
   spread(key, value) %>% 
   print()
@@ -263,7 +257,7 @@ gameDetail.game$status <-
     vars(ends_with("DateTime")),
     ymd_hms
   ) %>% 
-  set_names(str_c("status", names(.) %>% firstToUpper())) %>% 
+  set_names(str_c("status", names(.) %>% ut_firstToUpper())) %>% 
   print()
 ```
 
