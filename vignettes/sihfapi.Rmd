@@ -396,4 +396,73 @@ gameDetail.shootout <- tmp %>%
 
 rm(list = c("tmp", "parsePeriods"))
 ```
+
+#### Line-ups
+
+LineUp tables are recoreded in a somewhat cumbersome fashion. It is a nested list where:  
+-  Home and away team lineups are separate nested lists
+-  Position is the next level of nesting. Values are:  
+    - Defenders
+    - Forwarders
+    - Goalkeepers
+    - Other players
+    - Coach
+    - Captain
+    - Topscorer
+- Different postions have unique types of data
+    - Defenders and forwards have line (1-4) and side (left, center, right)
+    - Goalkeepers and other players have line (if at all)
+    - Captain and topscorer is a single playerId
+    - Coach has a separate set of fields
+    
+Based on that, our ultimate target for parsing is a players table:
+
+gameId   teamId  playerId  position    line  side   captain  topscorer
+2017xxx  96325   147852    defender    1     left   TRUE     FALSE
+2017xxx  96325   258963    forwarder   2     right  FALSE    TRUE
+2017xxx  96325   987521    goalkeeper  1     NA     FALSE    FALSE
+
+Note that  
+- captain and topscorer are converted to logical
+- line is filled by sequence of appearance to get a unique line id
+- gameId is filled
+- teamId is filled to complement "homeTeam" / "awayTeam" information
+
+In addition, we parse "Coach" information separately since the items on coaches don't fit the players table.
+
+The function `parse.lineUp()` facilitates parsing the deeply nested list that consists the line up data. The function takes a single argument that is a gameDetail object (as returned by `fetch_gameDetail()`) and returns a list of gameId, players and coaches line ups. Note that we extract a single element of gameDetail in the following code sample.
+
+```{r gd_lineups}
+gameDetail[[1]] %>% 
+  parse.lineUp()
 ```
+
+The `parse.lineUp()` function can simply be mapped to lists with multiple gameDetail elements. The following block of code uses `tibble::enframe()` to bind multiple games' gameDetail to a data frame. It then extracts flat tables of multi-game line ups for players and coaches separately.
+
+```{r gd_lineupsMulti}
+tmp <- gameDetail %>% 
+  map(parse.lineUp) %>% 
+  enframe("idx", "data") %>% 
+  mutate(
+    gameId = data %>% 
+      map_chr("gameId"),
+    players = data %>% 
+      map("players"),
+    coaches = data %>% 
+      map("coaches")
+  )
+
+gameDetail.lineUp.players <- tmp %>%
+  select(gameId, players) %>% 
+  unnest() %>% 
+  print()
+
+gameDetail.lineUp.coaches <- tmp %>%
+  select(gameId, coaches) %>% 
+  unnest() %>% 
+  print()
+
+rm(tmp)
+```
+
+To do: The field "otherPlayers" is not currently parsed because it is empty for all sample games currently considered.
