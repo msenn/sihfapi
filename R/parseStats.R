@@ -1,6 +1,6 @@
 #' Parse Stats
 #'
-#' @param gameDetail Game detail object; see \code{fetch_gameDetail()}
+#' @inheritParams parse.lineUp
 #'
 #' @return List of three tibbles: players, goalies, teams
 #' @export
@@ -10,7 +10,6 @@
 #' parse.stats(gameDetail)
 parse.stats <- function(gameDetail) {
   stats <- gameDetail$content$stats
-
   list(
     players = list(stats[[1]], stats[[3]]) %>%
       map(parse.stats.players) %>%

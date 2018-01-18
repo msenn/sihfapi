@@ -7,7 +7,7 @@
 parse.stats(gameDetail)
 }
 \arguments{
-\item{gameDetail}{Game detail object; see \code{fetch_gameDetail()}}
+\item{gameDetail}{SIHF API gameDetail object (see \code{fetch_gameDetail()})}
 }
 \value{
 List of three tibbles: players, goalies, teams
