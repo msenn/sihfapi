@@ -3,5 +3,6 @@
 S3method(print,sihf_api)
 export(fetch_gameDetail)
 export(fetch_results)
+export(parse.lineUp)
 export(ut_firstToUpper)
 import(httr)
