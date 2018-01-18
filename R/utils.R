@@ -31,3 +31,18 @@ ut_firstToUpper <- function(x) {
 parse_percent <- function(x, ...) {
   parse_number(x, ...) / 100
 }
+
+
+
+#' Get Field Alias from Header
+#'
+#' Internal function to get alias vector from header element
+#'
+#' @param header Header element
+#'
+#' @return Vector of field aliases
+get_alias_from_header <- function(header) {
+  header %>%
+    map("alias") %>%
+    unlist()
+}
