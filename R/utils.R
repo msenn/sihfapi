@@ -17,3 +17,17 @@ ut_firstToUpper <- function(x) {
   rest <- substr(x, 2, nchar(x))
   paste0(first, rest)
 }
+
+
+
+#' Parse Percent
+#'
+#' Returns a numeric fraction instead from character percentage.
+#'
+#' @param x A character vector of percent numbers
+#' @param ... Further parameters passed to \code{parse_number}
+#'
+#' @return Numeric vector
+parse_percent <- function(x, ...) {
+  parse_number(x, ...) / 100
+}
