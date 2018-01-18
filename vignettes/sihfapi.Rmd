@@ -465,4 +465,146 @@ gameDetail.lineUp.coaches <- tmp %>%
 rm(tmp)
 ```
 
-To do: The field "otherPlayers" is not currently parsed because it is empty for all sample games currently considered.
+To do: The position "otherPlayers" is not currently parsed because it is empty for all sample games currently considered.
+
+
+
+#### Stats
+```{r}
+parse.stats <- function(gameDetail) {
+  # Parse stats
+  tmp <-  gd %$%
+    content %$%
+    stats %>% 
+    map(
+      ~enframe(.) %>% 
+        spread(name, value)
+    ) %>% 
+    bind_rows() %>% 
+    mutate_at(
+      vars(alias, description, title),
+      funs(map_chr(., unlist))
+    ) %>% 
+    mutate(
+      colNames = header %>% 
+        map(~map_chr(., "alias")),
+      data = map2(
+        data, colNames,
+        parse.stats.data
+      ),
+      team = alias %>% 
+        str_replace("(goalie|player)Stats", "") %>% 
+        tolower() %>% 
+        {sprintf("%sTeam", .)}
+    )
+  
+  
+  playerStats <- tmp %>% 
+    filter(str_detect(alias, "^playerStats")) %>% 
+    select(team, data) %>% 
+    unnest() %>% 
+    mutate_at(
+      vars(
+        "playerNumber", "goals", "assists", "assists1", "assists2", "points", "pimTotal",
+        "pimTotal", "plusMinus", "shotsOnGoal", "sogMissed", "sogPost", "blockings"
+      ),
+      parse_integer
+    ) %>% 
+    mutate_at(
+      vars("faceoffsPercent"),
+      parse_percent,
+      na = "-"
+    ) %>% 
+    mutate_at(
+      vars(starts_with("timeOnIce")),
+      ms
+    )
+  
+  
+  goalieStats <- tmp %>% 
+    filter(str_detect(alias, "^goalieStats")) %>% 
+    select(team, data) %>% 
+    unnest() %>% 
+    mutate_at(
+      vars("playerNumber", "goalsAgainst", "saves", "shotsAgainst", "penaltyInMinutes"),
+      parse_integer
+    ) %>% 
+    mutate_at(
+      vars("savesPercentage"),
+      parse_percent,
+      na = "-"
+    ) %>% 
+    mutate_at(
+      vars("goalsAgainstAverage"),
+      parse_number,
+      na = "-"
+    ) %>% 
+    mutate_at(
+      vars("secondsPlayed"),
+      ms
+    )
+  
+  teams <- tmp %>% 
+    select(team, description) %>% 
+    distinct()
+  
+  teamStats <- tmp %>% 
+    filter(str_detect(alias, "^teamStats")) %>% 
+    select(data) %>% 
+    unnest() %>% 
+    gather("teamName", "value", -Statistic) %>% 
+    left_join(teams, by = c(teamName = "description")) %>% 
+    select(-teamName) %>% 
+    spread(Statistic, value) %>% 
+    mutate_at(
+      vars(matches("%")),
+      parse_percent
+    ) %>% 
+    mutate_at(
+      vars(
+        starts_with("BkS"),
+        matches("FO(W|L)? Total"),
+        starts_with("PIM"),
+        starts_with("PK "),
+        "PPG",
+        starts_with("PP "),
+        starts_with("SH"),
+        starts_with("SOG")
+      ),
+      parse_integer
+    ) %>% 
+    mutate_at(
+      vars("PKT", "PPT"),
+      ms
+    )
+  
+  list(
+    gameId = gameDetail$content$gameId,
+    playerStats = playerStats,
+    goalieStats = goalieStats,
+    teamStats = teamStats
+  )
+}
+
+parse.stats(gameDetail[[1]])
+# Todo: Some value parsing fails and throws a warning.
+```
+
+
+#### Result
+
+#### Details
+
+```{r gd_complex}
+nm.complex <- c("summary", "lineUps", "players", "stats", "result", "details")
+
+gameDetail[[1]]$content %>% 
+  map(`[`, nm.complex) %>% 
+  map(str, max.level = 1)
+
+
+
+
+```
+
+
