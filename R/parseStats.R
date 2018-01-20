@@ -45,7 +45,7 @@ parse.stats.players <- function(players) {
 
     mutate_all(na_if, "-") %>%
     mutate_at(vars(playerNumber, goals:faceoffsLost), "as.integer") %>%
-    mutate_at(vars(starts_with("timeOnIce")), funs(as.numeric(ms(.)))) %>%
+    mutate_at(vars(starts_with("timeOnIce")), parse_ms) %>%
     mutate_at("faceoffsPercent", "parse_percent", na = "-") %>%
 
     mutate(team = players$description)
@@ -71,7 +71,7 @@ parse.stats.goalies <- function(goalies) {
 
     mutate_all(na_if, "-") %>%
     mutate_at(vars(playerNumber, goalsAgainst:shotsAgainst, penaltyInMinutes), "as.integer") %>%
-    mutate_at("secondsPlayed", funs(as.numeric(ms(.)))) %>%
+    mutate_at("secondsPlayed", parse_ms) %>%
     mutate_at("savesPercentage", "parse_percent", na = "-") %>%
     mutate_at("goalsAgainstAverage", as.numeric) %>%
 
