@@ -2,7 +2,7 @@
 
 #' Parse Line-Up
 #'
-#' @param gameDetail SIHF API gameDetail object (see \code{fetch_gameDetail()})
+#' @inheritParams parse.gameDetail
 #'
 #' @return List with three elements: "gameId", "players" and "coach"
 #'   with line-ups of both home and away team.
@@ -35,7 +35,6 @@ parse.lineUp <- function(gameDetail) {
     unnest()
 
   list(
-    gameId = gameDetail$content$gameId,
     players = players,
     coaches = coaches
   )
