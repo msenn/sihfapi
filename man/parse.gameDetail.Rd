@@ -17,5 +17,5 @@ Parse game detail object as returned by \code{fetch_gameDetail()} into a set of 
 }
 \examples{
 gameDetail <- fetch_gameDetail(20171105078373)
-parse.gameDetail(gameDetail)
+gameDetail.parsed <- parse.gameDetail(gameDetail)
 }

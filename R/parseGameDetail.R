@@ -9,13 +9,18 @@
 #'
 #' @examples
 #' gameDetail <- fetch_gameDetail(20171105078373)
-#' parse.gameDetail(gameDetail)
+#' gameDetail.parsed <- parse.gameDetail(gameDetail)
 parse.gameDetail <- function(gameDetail) {
+  summary <- parse.summary(gameDetail)
   stats <-  parse.stats(gameDetail)
   lineUp <- parse.lineUp(gameDetail)
 
+
   list(
     header = parse.header(gameDetail),
+
+    summary.goals = summary$goals,
+    summary.fouls = summary$fouls,
 
     stats.players = stats$players,
     stats.goalies = stats$goalies,
