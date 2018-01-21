@@ -14,22 +14,29 @@ parse.gameDetail <- function(gameDetail) {
   summary <- parse.summary(gameDetail)
   stats <-  parse.stats(gameDetail)
   lineUp <- parse.lineUp(gameDetail)
+  details <- parse.details(gameDetail)
 
   list(
-    header = parse.header(gameDetail),
+    header = bind_cols(
+      parse.header(gameDetail),
+      set_names(details$venue, paste("venue", names(details$venue), sep = "_"))
+    ),
 
-    summary.goals = summary$goals,
-    summary.fouls = summary$fouls,
+    summary_goals = summary$goals,
+    summary_fouls = summary$fouls,
 
     result = parse.result(gameDetail),
 
-    stats.players = stats$players,
-    stats.goalies = stats$goalies,
+    stats_players = stats$players,
+    stats_goalies = stats$goalies,
     stats.teams = stats$teams,
 
-    lineUp.players = lineUp$players,
-    lineUp.coaches = lineUp$coaches,
+    lineUp_players = lineUp$players,
+    lineUp_coaches = lineUp$coaches,
 
-    players = parse.players(gameDetail)
+    players = parse.players(gameDetail),
+
+    details_teams = details$teams,
+    details_referees = details$referees
   )
 }
