@@ -4,7 +4,7 @@
 #'
 #' @param gameDetail SIHF API gameDetail object (see \code{fetch_gameDetail()})
 #'
-#' @return List of tibbles containing all data from game detail.
+#' @return Tibbles containing the parsed information from game detail. Moste information is nested in the list columns.
 #' @export
 #'
 #' @examples
@@ -16,27 +16,27 @@ parse.gameDetail <- function(gameDetail) {
   lineUp <- parse.lineUp(gameDetail)
   details <- parse.details(gameDetail)
 
-  list(
-    header = bind_cols(
-      parse.header(gameDetail),
-      set_names(details$venue, paste("venue", names(details$venue), sep = "_"))
-    ),
+  parse.header(gameDetail) %>%
+    bind_cols(
+      details$venue %>%
+        set_names(paste("venue", names(details$venue), sep = "_"))
+    ) %>%
+    mutate(
+      summary_goals    = list(summary$goals),
+      summary_fouls    = list(summary$fouls),
 
-    summary_goals = summary$goals,
-    summary_fouls = summary$fouls,
+      result           = list(parse.result(gameDetail)),
 
-    result = parse.result(gameDetail),
+      stats_players    = list(stats$players),
+      stats_goalies    = list(stats$goalies),
+      stats.teams      = list(stats$teams),
 
-    stats_players = stats$players,
-    stats_goalies = stats$goalies,
-    stats.teams = stats$teams,
+      lineUp_players   = list(lineUp$players),
+      lineUp_coaches   = list(lineUp$coaches),
 
-    lineUp_players = lineUp$players,
-    lineUp_coaches = lineUp$coaches,
+      players          = list(parse.players(gameDetail)),
 
-    players = parse.players(gameDetail),
-
-    details_teams = details$teams,
-    details_referees = details$referees
-  )
+      details_teams    = list(details$teams),
+      details_referees = list(details$referees)
+    )
 }

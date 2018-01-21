@@ -10,7 +10,7 @@ parse.gameDetail(gameDetail)
 \item{gameDetail}{SIHF API gameDetail object (see \code{fetch_gameDetail()})}
 }
 \value{
-List of tibbles containing all data from game detail.
+Tibbles containing the parsed information from game detail. Moste information is nested in the list columns.
 }
 \description{
 Parse game detail object as returned by \code{fetch_gameDetail()} into a set of flat tibbles.
