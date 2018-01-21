@@ -1,14 +1,14 @@
 #' Parse Header
 #'
-#' @inheritParams parse.lineUp
+#' @inheritParams parse.gameDetail
 #'
 #' @return Tibble
 #' @export
 #'
 #' @examples
 #' gameDetail <- fetch_gameDetail(20171105078373)
-#' parse.header(gameDetail)
-parse.header <- function(gameDetail) {
+#' parse.gameDetail.header(gameDetail)
+parse.gameDetail.header <- function(gameDetail) {
   content <- gameDetail$content
 
   scalar <- c(

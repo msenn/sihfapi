@@ -1,5 +1,3 @@
-# Function to parse line-up
-
 #' Parse Line-Up
 #'
 #' @inheritParams parse.gameDetail
@@ -10,15 +8,15 @@
 #'
 #' @examples
 #' gameDetail <- fetch_gameDetail(20171105078373)
-#' parse.lineUp(gameDetail)
-parse.lineUp <- function(gameDetail) {
+#' parse.gameDetail.lineUp(gameDetail)
+parse.gameDetail.lineUp <- function(gameDetail) {
   nested <- gameDetail %$%
     content %$%
     lineUps %>%
     enframe("team", "lineUp") %>%
     mutate(
       lineUp = lineUp %>%
-        map(parse.lineUp.team),
+        map(parse.gameDetail.lineUp.team),
       players = lineUp %>%
         map("players"),
       coach = lineUp %>%
@@ -46,7 +44,7 @@ parse.lineUp <- function(gameDetail) {
 #' @param lineUp.team Team Line-Up
 #'
 #' @return A list with two elements "players" and "coach"
-parse.lineUp.team <- function(lineUp.team) {
+parse.gameDetail.lineUp.team <- function(lineUp.team) {
 
   df <- lineUp.team %>%
     enframe("position", "lineUp")
@@ -54,12 +52,12 @@ parse.lineUp.team <- function(lineUp.team) {
   ## Parse players lineUp
   goalkeepers <- df %>%
     filter(position == "goalkeepers") %>%
-    mutate(lineUp = map(lineUp, parse.lineUp.goalkeepers)) %>%
+    mutate(lineUp = map(lineUp, parse.gameDetail.lineUp.goalkeepers)) %>%
     unnest()
 
   field <- df %>%
     filter(position %in% c("defenders", "forwarders")) %>%
-    mutate(lineUp = map(lineUp, parse.lineUp.field)) %>%
+    mutate(lineUp = map(lineUp, parse.gameDetail.lineUp.field)) %>%
     unnest()
 
   captain <- df %>%
@@ -96,7 +94,7 @@ parse.lineUp.team <- function(lineUp.team) {
 #' @param lineUp.goalkeepers Goalkeepers Entry in Team Line-Up
 #'
 #' @return Data frame with line and playerId
-parse.lineUp.goalkeepers <- function(lineUp.goalkeepers) {
+parse.gameDetail.lineUp.goalkeepers <- function(lineUp.goalkeepers) {
   lineUp.goalkeepers %>%
     enframe("line", "playerId") %>%
     mutate(playerId = unlist(playerId))
@@ -108,7 +106,7 @@ parse.lineUp.goalkeepers <- function(lineUp.goalkeepers) {
 #' @param lineUp.field Field Player Entry in Team Line-Up
 #'
 #' @return Data frame with side, line and playerId
-parse.lineUp.field <- function(lineUp.field) {
+parse.gameDetail.lineUp.field <- function(lineUp.field) {
   lineUp.field %>%
     enframe("side") %>%
     mutate(

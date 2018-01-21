@@ -11,12 +11,12 @@
 #' gameDetail <- fetch_gameDetail(20171105078373)
 #' gameDetail.parsed <- parse.gameDetail(gameDetail)
 parse.gameDetail <- function(gameDetail) {
-  summary <- parse.summary(gameDetail)
-  stats <-  parse.stats(gameDetail)
-  lineUp <- parse.lineUp(gameDetail)
-  details <- parse.details(gameDetail)
+  summary <- parse.gameDetail.summary(gameDetail)
+  stats <-  parse.gameDetail.stats(gameDetail)
+  lineUp <- parse.gameDetail.lineUp(gameDetail)
+  details <- parse.gameDetail.details(gameDetail)
 
-  parse.header(gameDetail) %>%
+  parse.gameDetail.header(gameDetail) %>%
     bind_cols(
       details$venue %>%
         set_names(paste("venue", names(details$venue), sep = "_"))
@@ -25,7 +25,7 @@ parse.gameDetail <- function(gameDetail) {
       summary_goals    = list(summary$goals),
       summary_fouls    = list(summary$fouls),
 
-      result           = list(parse.result(gameDetail)),
+      result           = list(parse.gameDetail.result(gameDetail)),
 
       stats_players    = list(stats$players),
       stats_goalies    = list(stats$goalies),
@@ -34,7 +34,7 @@ parse.gameDetail <- function(gameDetail) {
       lineUp_players   = list(lineUp$players),
       lineUp_coaches   = list(lineUp$coaches),
 
-      players          = list(parse.players(gameDetail)),
+      players          = list(parse.gameDetail.players(gameDetail)),
 
       details_teams    = list(details$teams),
       details_referees = list(details$referees)

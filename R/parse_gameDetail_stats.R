@@ -1,26 +1,26 @@
 #' Parse Stats
 #'
-#' @inheritParams parse.lineUp
+#' @inheritParams parse.gameDetail
 #'
 #' @return List of three tibbles: players, goalies, teams
 #' @export
 #'
 #' @examples
 #' gameDetail <- fetch_gameDetail(20171105078373)
-#' parse.stats(gameDetail)
-parse.stats <- function(gameDetail) {
+#' parse.gameDetail.stats(gameDetail)
+parse.gameDetail.stats <- function(gameDetail) {
   stats <- gameDetail$content$stats
   list(
     players = list(stats[[1]], stats[[3]]) %>%
-      map(parse.stats.players) %>%
+      map(parse.gameDetail.stats.players) %>%
       bind_rows(),
 
     goalies = list(stats[[2]], stats[[4]]) %>%
-      map(parse.stats.goalies) %>%
+      map(parse.gameDetail.stats.goalies) %>%
       bind_rows(),
 
     teams = stats[[5]] %>%
-      parse.stats.teams()
+      parse.gameDetail.stats.teams()
   )
 }
 
@@ -34,8 +34,8 @@ parse.stats <- function(gameDetail) {
 #'
 #' @examples
 #' gameDetail <- fetch_gameDetail(20171105078373)
-#' parse.stats.players(gameDetail$content$stats[[1]])
-parse.stats.players <- function(players) {
+#' parse.gameDetail.stats.players(gameDetail$content$stats[[1]])
+parse.gameDetail.stats.players <- function(players) {
   alias <- players$header %>%
     get_alias_from_header()
 
@@ -60,8 +60,8 @@ parse.stats.players <- function(players) {
 #'
 #' @examples
 #' gameDetail <- fetch_gameDetail(20171105078373)
-#' parse.stats.goalies(gameDetail$content$stats[[2]])
-parse.stats.goalies <- function(goalies) {
+#' parse.gameDetail.stats.goalies(gameDetail$content$stats[[2]])
+parse.gameDetail.stats.goalies <- function(goalies) {
   alias <- goalies$header %>%
     get_alias_from_header()
 
@@ -87,8 +87,8 @@ parse.stats.goalies <- function(goalies) {
 #'
 #' @examples
 #' gameDetail <- fetch_gameDetail(20171105078373)
-#' parse.stats.teams(gameDetail$content$stats[[5]])
-parse.stats.teams <- function(teams) {
+#' parse.gameDetail.stats.teams(gameDetail$content$stats[[5]])
+parse.gameDetail.stats.teams <- function(teams) {
   description <- teams$header %>%
     map("description") %>%
     unlist()

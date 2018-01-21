@@ -3,7 +3,7 @@
 #' @inheritParams parse.gameDetail
 #'
 #' @return Tibble containing parsed information of \code{gameDetail$content$result}
-parse.result <- function(gameDetail) {
+parse.gameDetail.result <- function(gameDetail) {
   result <- gameDetail$content$result
 
   scores <- result$scores %>%

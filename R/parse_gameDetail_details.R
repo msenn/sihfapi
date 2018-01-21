@@ -3,7 +3,7 @@
 #' @inheritParams parse.gameDetail
 #'
 #' @return Parsed content of \code{gameDetail$content$details}
-parse.details <- function(gameDetail) {
+parse.gameDetail.details <- function(gameDetail) {
   details <- gameDetail$content$details
 
   venue <- details$venue %>%

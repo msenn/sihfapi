@@ -8,11 +8,11 @@
 #'
 #' @examples
 #' gameDetail <- fetch_gameDetail(20171105078373)
-#' parse.summary(gameDetail)
-parse.summary <- function(gameDetail) {
+#' parse.gameDetail.summary(gameDetail)
+parse.gameDetail.summary <- function(gameDetail) {
   summary <- gameDetail$content$summary
 
-  parse.summary.periods(summary$periods)
+  parse.gameDetail.summary.periods(summary$periods)
 }
 
 # Periods ---------------------------------------------------------------------
@@ -22,9 +22,9 @@ parse.summary <- function(gameDetail) {
 #' @param periods List of summary period elements
 #'
 #' @return List of tibbles 'fouls' and 'goals' across all periods
-parse.summary.periods <- function(periods) {
+parse.gameDetail.summary.periods <- function(periods) {
   res <- periods %>%
-    map(parse.summary.period) %>%
+    map(parse.gameDetail.summary.period) %>%
     map(enframe) %>%
     set_names(as.character(1:3)) %>%
     enframe("period") %>%
@@ -42,10 +42,10 @@ parse.summary.periods <- function(periods) {
 #' @param period Single summary period element
 #'
 #' @return List of tibbles containing information in summary period elements
-parse.summary.period <- function(period) {
+parse.gameDetail.summary.period <- function(period) {
   list(
-    fouls = parse.summary.period.child(period$fouls),
-    goals = parse.summary.period.child(period$goals)
+    fouls = parse.gameDetail.summary.period.child(period$fouls),
+    goals = parse.gameDetail.summary.period.child(period$goals)
   )
 }
 
@@ -54,7 +54,7 @@ parse.summary.period <- function(period) {
 #' @param x Summary period element ('fouls' or 'goals')
 #'
 #' @return Parsed tibble of information contained by summary period element
-parse.summary.period.child <- function(x) {
+parse.gameDetail.summary.period.child <- function(x) {
   x %>%
     bind_rows() %>%
     mutate_at(vars(matches("[tT]ime")), parse_ms)
