@@ -15,12 +15,13 @@ parse.gameDetail <- function(gameDetail) {
   stats <-  parse.stats(gameDetail)
   lineUp <- parse.lineUp(gameDetail)
 
-
   list(
     header = parse.header(gameDetail),
 
     summary.goals = summary$goals,
     summary.fouls = summary$fouls,
+
+    result = parse.result(gameDetail),
 
     stats.players = stats$players,
     stats.goalies = stats$goalies,
