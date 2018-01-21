@@ -4,6 +4,8 @@
 #'
 #' @return Tibble containing parsed information of \code{gameDetail$content$result}
 parse.result <- function(gameDetail) {
+  result <- gameDetail$content$result
+
   scores <- result$scores %>%
     bind_rows() %>%
     set_names(paste("score", names(.), sep = "_"))
