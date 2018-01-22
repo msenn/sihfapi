@@ -23,10 +23,11 @@ parse.gameDetail.summary <- function(gameDetail) {
 #'
 #' @return List of tibbles 'fouls' and 'goals' across all periods
 parse.gameDetail.summary.periods <- function(periods) {
+
   res <- periods %>%
     map(parse.gameDetail.summary.period) %>%
     map(enframe) %>%
-    set_names(as.character(1:3)) %>%
+    set_names(as.character(seq(length(.)))) %>%
     enframe("period") %>%
     unnest() %>%
     spread(name, value)
