@@ -1,0 +1,129 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+load("nl2017.rda")
+```
+
+## Get referees information
+
+```{r}
+nl2017$details_referees[[1]]
+```
+
+
+```{r}
+refs <- nl2017 %>% 
+  select(gameId, details_referees) %>% 
+  unnest()
+refs
+
+(dim(refs) / dim(nl2017))[1]
+```
+
+* Indeed, there are 4 referees per game
+
+```{r}
+refs %>% 
+  group_by(role) %>% 
+  count(fullName) %>% 
+  arrange(desc(n))
+```
+
+
+## Get penalties information
+
+```{r}
+fouls <- nl2017 %>% 
+  select(gameId, summary_fouls) %>% 
+  unnest()
+fouls
+```
+
+```{r}
+fouls %>% 
+  count(name) %>% 
+  arrange(desc(n))
+```
+
+
+## Combine foul and referees information
+
+We can investigate whether all refserees call similar penalties.
+
+```{r}
+left_join(fouls, refs, by = "gameId") %>% 
+  count(fullName, name) %>% 
+  
+  ggplot(aes(fullName, name, fill = n)) +
+  geom_tile()
+```
+
+* There are too many referees  
+* There are too many foul categories (e.g. "Fauskampf", "Unkorrekte Ausrüstung" get hardly ever called)  
+* Fouls and referees are not sorted  
+
+```{r}
+top_refs <- refs %>% 
+  filter(role == "referee") %>% 
+  count(fullName) %>% 
+  top_n(10, n) %>% 
+  mutate(fullName = fct_reorder(fullName, -n)) %>% 
+  arrange(fullName)
+top_refs
+```
+
+
+```{r}
+top_fouls <- fouls %>% 
+  count(name) %>% 
+  top_n(9, n) %>% 
+  mutate(name = fct_reorder(name, -n)) %>% 
+  arrange(name)
+top_fouls
+```
+
+```{r}
+left_join(
+  filter(fouls, name %in% top_fouls$name),
+  filter(refs, fullName %in% top_refs$fullName),
+  by = "gameId"
+) %>% 
+  
+  filter(!is.na(fullName)) %>% 
+  count(fullName, name) %>% 
+  group_by(fullName) %>%
+  mutate(pct = n / sum(n)) %>% 
+  
+  ggplot(aes(fullName, name, fill = pct)) +
+  geom_tile() +
+  labs(
+    title = "Fouls",
+    subtitle = "Frequency as percent of referees' top 9 fouls",
+    x = NULL, y = NULL, fill = NULL
+  ) +
+  
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_discrete(expand = c(0, 0)) +
+  scale_fill_gradient2(midpoint = 1/9) +
+  
+  guides(fill = guide_colorbar(
+    title.position = "top",
+    label.position = "bottom",
+    barwidth = 25,
+    barheight = .5
+  )) +
+  
+  theme_light() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    legend.position = "top",
+    panel.grid.major = element_blank(),
+    axis.ticks = element_blank()
+  )
+```
+
