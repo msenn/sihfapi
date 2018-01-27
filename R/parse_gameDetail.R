@@ -17,11 +17,11 @@ parse.gameDetail <- function(gameDetail) {
   details <- parse.gameDetail.details(gameDetail)
 
   parse.gameDetail.header(gameDetail) %>%
-    bind_cols(
-      details$venue %>%
-        set_names(paste("venue", names(details$venue), sep = "_"))
-    ) %>%
+    nest(-gameId, .key = "header") %>%
+
     mutate(
+      venue            = list(details$venue),
+
       summary_goals    = list(summary$goals),
       summary_fouls    = list(summary$fouls),
 
@@ -29,7 +29,7 @@ parse.gameDetail <- function(gameDetail) {
 
       stats_players    = list(stats$players),
       stats_goalies    = list(stats$goalies),
-      stats.teams      = list(stats$teams),
+      stats_teams      = list(stats$teams),
 
       lineUp_players   = list(lineUp$players),
       lineUp_coaches   = list(lineUp$coaches),
@@ -40,3 +40,4 @@ parse.gameDetail <- function(gameDetail) {
       details_referees = list(details$referees)
     )
 }
+

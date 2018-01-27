@@ -2,16 +2,25 @@
 % Please edit documentation in R/utils.R
 \name{parse_ms}
 \alias{parse_ms}
+\alias{parse_ms}
 \title{Parse Minutes and Seconds}
 \usage{
+parse_ms(x)
+
 parse_ms(x)
 }
 \arguments{
 \item{x}{Time in 'm:s'}
+
+\item{x}{Time in 'h:m'}
 }
 \value{
+Time in seconds
+
 Time in seconds
 }
 \description{
 Parse Minutes and Seconds
+
+Parse Hours and Minutes
 }
