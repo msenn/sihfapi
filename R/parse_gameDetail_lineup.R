@@ -45,7 +45,6 @@ parse.gameDetail.lineUp <- function(gameDetail) {
 #'
 #' @return A list with two elements "players" and "coach"
 parse.gameDetail.lineUp.team <- function(lineUp.team) {
-
   df <- lineUp.team %>%
     enframe("position", "lineUp")
 
@@ -82,6 +81,7 @@ parse.gameDetail.lineUp.team <- function(lineUp.team) {
     filter(position == "coach") %$%
     lineUp %>%
     flatten() %>%
+    map(~ if(is.null(.x)) NA else .x) %>%
     bind_cols()
 
   ## Return
