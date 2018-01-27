@@ -43,6 +43,15 @@ parse_ms <- function(x) {
 }
 
 
+#' Parse Hours and Minutes
+#'
+#' @param x Time in 'h:m'
+#'
+#' @return Time in seconds
+parse_hm <- function(x) {
+  as.integer(as.numeric(lubridate::hm(x)))
+}
+
 
 #' Get Field Alias from Header
 #'

@@ -42,7 +42,9 @@ parse.gameDetail.header <- function(gameDetail) {
     ) %>%
     bind_cols()
 
-  bind_cols(scalar, nested)
+  bind_cols(scalar, nested) %>%
+
+    mutate_at(vars(ends_with("DateTime")), as.POSIXct)
 }
 
 

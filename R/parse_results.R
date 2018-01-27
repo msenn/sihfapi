@@ -17,7 +17,11 @@ parse.results <- function(results) {
   results$content$data %>%
     map(set_names, alias) %>%
     map(parse.results.item) %>%
-    bind_rows()
+    bind_rows() %>%
+
+    mutate_at("date", as.Date, format = "%d.%m.%Y") %>%
+    mutate_at("time", parse_hm) %>%
+    mutate_at(vars(matches("score_(home|away)Team")), as.integer)
 }
 
 
