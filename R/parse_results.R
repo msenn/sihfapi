@@ -21,7 +21,10 @@ parse.results <- function(results) {
 
     mutate_at("date", as.Date, format = "%d.%m.%Y") %>%
     mutate_at("time", parse_hm) %>%
-    mutate_at(vars(matches("score_(home|away)Team")), as.integer)
+    mutate_at(vars(matches("score_(home|away)Team")), as.integer) %>%
+
+    mutate(gameId = details_gameId) %>%
+    select(gameId, everything())
 }
 
 
