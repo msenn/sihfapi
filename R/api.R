@@ -163,4 +163,5 @@ fetch_gameDetail <- function(gameId) {
   )
 
   sihf_api("/statistic/api/cms/gameoverview", query)
+  Sys.sleep(mean(runif(25) * 5))
 }
