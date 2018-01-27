@@ -162,6 +162,7 @@ fetch_gameDetail <- function(gameId) {
     searchQuery = gameId
   )
 
+  Sys.sleep(mean(runif(25) * 3))
   sihf_api("/statistic/api/cms/gameoverview", query)
-  Sys.sleep(mean(runif(25) * 5))
+
 }
